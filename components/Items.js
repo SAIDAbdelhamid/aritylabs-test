@@ -29,7 +29,7 @@ export default function Items(props){
                 >
                 <ListItem.Content >
                     <ListItem.Title onPress={()=>setFullLabel(!fullLabel)}>
-                        {fullLabel ? label : label.length < 25 ? `${label}` : `${label.substring(0, 25)}...`}
+                        {fullLabel ? label : label?.length < 25 ? `${label}` : `${label.substring(0, 25)}...`}
                     </ListItem.Title>
                 </ListItem.Content>
                 
