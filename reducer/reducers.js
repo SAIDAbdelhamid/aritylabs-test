@@ -1,6 +1,6 @@
 export const INITIAL_STATE = {
-    data: null,
-    loading: false,
+    effects: null,
+    loading: true,
   }
 
 export const sideEffectReducer = (state = INITIAL_STATE, action) => {

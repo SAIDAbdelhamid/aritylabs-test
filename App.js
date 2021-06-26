@@ -3,9 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { enableScreens } from 'react-native-screens';
+
 import { sideEffectReducer, INITIAL_STATE } from './reducer/reducers'
 import { _getSideEffects, _loadingSideEffects } from './action/actions'
-
 import AppStack from './navigation/AppStack'
 import { Mycontext } from "./constants/context";
 
