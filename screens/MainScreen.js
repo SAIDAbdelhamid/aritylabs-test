@@ -6,8 +6,11 @@ import {
   SectionList,
   StyleSheet } from 'react-native'
 import { Button } from 'react-native-elements'
+import { Formik } from 'formik';
+import * as yup from "yup";
 
 import COLORS from '../constants/theme'
+import { _setStorage } from '../utils/storage'
 import Items from '../components/Items'
 import { Mycontext } from "../constants/context";
 import { useInfinityScroll } from "../hooks/useInfinityScroll"
@@ -70,56 +73,82 @@ export default function MainScreen(){
 
     const Screen = () =>{
         const [effect, scroll] = useInfinityScroll(state.data)
-        const [modalVisible, setModalVisible] = useState(false);
+        const [modalVisible, setModalVisible] = useState({modalState:false,id:null});
 
         useEffect(() => {
             scroll()
         }, [])
+
+        useEffect(() => {
+            if (state.data) {
+                async function _store(){
+                    await _setStorage('data',state.data)
+                }
+                _store()
+            }
+        }, [state.data])
         
         return(
             <View style={styles.container}>
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        setModalVisible(!modalVisible);
-                    }}
+                <Formik
+                    initialValues={{effectName:''}}
+                    onSubmit={ async(values) => { dispatch(app._updateSideEffects(modalVisible.id, values.effectName)) }}
+                    validateOnChange={false}
+                    validationSchema={yup.object().shape({
+                        effectName: yup
+                            .string()
+                            .required('(*) Ce champ est obligatoire')
+                            .min(3, ({ min }) => `Ce champ doit contenir au moins ${min} characters`)
+                      })}
                 >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <View style={styles.headerModalContainer}>
-                                <Text style={styles.titleModalContent}>L'effet secondaire</Text>
-                            </View>
+                    {({ handleChange, errors, handleSubmit, values }) => (
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible.modalState}
+                        onRequestClose={() => {
+                            setModalVisible({modalState:!modalVisible.modalState,id:null});
+                        }}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <View style={styles.headerModalContainer}>
+                                    <Text style={styles.titleModalContent}>L'effet secondaire</Text>
+                                </View>
 
-                            <View style={styles.bodyModalContainer}>
-                                <View style={styles.inputContainer}>
-                                    <TextInput placeholder="Nom de l'effet" />
+                                <View style={styles.bodyModalContainer}>
+                                    <View style={styles.inputContainer}>
+                                        <TextInput onChangeText={handleChange('effectName')} value={values.effectName} placeholder="Nom de l'effet" />
+                                    </View>
+                                    {(errors.effectName) && <View style={{marginHorizontal: 10,marginTop:5}}>
+                                            <Text style={{color: '#E74C3C'}}>{errors.effectName.toString()}</Text>
+                                        </View>}
+                                </View>
+
+                                <View style={styles.footerModalContainer}>
+                                    <Button
+                                        title={"Annuler"}
+                                        buttonStyle={[styles.btnContent, {backgroundColor: COLORS.SECONDARY}]}
+                                        onPress={()=>{setModalVisible({modalState:!modalVisible.modalState,id:null})}}
+                                    />
+                                    <Button
+                                        title={"Modifier"}
+                                        buttonStyle={[styles.btnContent, {backgroundColor: COLORS.PRIMARY}]}
+                                        onPress={handleSubmit}
+                                    />
                                 </View>
                             </View>
-
-                            <View style={styles.footerModalContainer}>
-                                <Button
-                                    title={"Annuler"}
-                                    buttonStyle={[styles.btnContent, {backgroundColor: COLORS.SECONDARY}]}
-                                    onPress={()=>{setModalVisible(!modalVisible)}}
-                                />
-                                <Button
-                                    title={"Modifier"}
-                                    buttonStyle={[styles.btnContent, {backgroundColor: COLORS.PRIMARY}]}
-                                    onPress={()=>{console.log('modifier')}}
-                                />
-                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
+                    )}
+                </Formik>
 
                 <SectionList
                     sections={formatData(effect)}
                     onEndReachedThreshold={2}
                     onEndReached={()=>scroll()}
                     keyExtractor={(item, index) => item + index}
-                    renderItem={({ item }) => <Items label={item.label} onPress={()=> setModalVisible(true)}/>}
+                    renderItem={({ item }) => <Items label={item.label} onPress={()=> setModalVisible({modalState:true,id:item.id})}/>}
                     renderSectionHeader={({ section: { title } }) => (
                         <Text style={styles.sectionTitleContent}>{title}</Text>
                     )}
@@ -127,7 +156,7 @@ export default function MainScreen(){
             </View>
         )
     }
-
+    
     if (state.loading) {
         return(<></>)
     }
@@ -159,7 +188,6 @@ const styles = StyleSheet.create({
     },
     bodyModalContainer:{
         flex: 2, 
-        flexDirection: 'row', 
         justifyContent: 'center', 
         alignItems: 'center'
     },

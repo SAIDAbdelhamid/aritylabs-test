@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { MainConfig } from '../config/mainconfig'
 import { _setStorage, _getStorage } from '../utils/storage'
+import {GET_SIDE_EFFECTS_SUCCESS,UPDATE_SIDE_EFFECTS,GET_SIDE_EFFECTS} from '../constants/constants'
 
 const _postLogin = (email,password) => axios.post(MainConfig.ROOT_URL+`Endusers/login`,{ email, password })
 
@@ -14,8 +15,8 @@ export const _getSideEffects = async () => {
     const result = await _getStorage('data')
     if (result) {
         return{
-            type: "GET_SIDE_EFFECTS_SUCCESS",
-            payload: result
+            type: GET_SIDE_EFFECTS_SUCCESS,
+            payload: orderEffects(result)
         }
     }
     else {
@@ -24,14 +25,24 @@ export const _getSideEffects = async () => {
         const orderData = orderEffects(data)
         await _setStorage('data',orderData)
         return{
-            type: "GET_SIDE_EFFECTS_SUCCESS",
+            type: GET_SIDE_EFFECTS_SUCCESS,
             payload: orderData
         }
     }
 };
 
+export const _updateSideEffects = (id_effect, effect) => {
+    return{
+        type: UPDATE_SIDE_EFFECTS,
+        payload: {
+            id:id_effect,
+            name:effect
+        }
+    }
+}
+
 export const _loadingSideEffects = () => {
     return{
-        type: "GET_SIDE_EFFECTS"
+        type: GET_SIDE_EFFECTS
     }
 }

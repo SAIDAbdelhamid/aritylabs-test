@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { enableScreens } from 'react-native-screens';
 
 import { sideEffectReducer, INITIAL_STATE } from './reducer/reducers'
-import { _getSideEffects, _loadingSideEffects } from './action/actions'
+import { _getSideEffects, _loadingSideEffects, _updateSideEffects } from './action/actions'
 import AppStack from './navigation/AppStack'
 import { Mycontext } from "./constants/context";
 
@@ -16,7 +16,7 @@ export default function App() {
   const [state, dispatch] = useReducer(sideEffectReducer, INITIAL_STATE);
 
   return (
-    <Mycontext.Provider value={ { state, dispatch, app : {_getSideEffects:_getSideEffects, _loadingSideEffects:_loadingSideEffects}}}>
+    <Mycontext.Provider value={ { state, dispatch, app : {_updateSideEffects:_updateSideEffects, _getSideEffects:_getSideEffects, _loadingSideEffects:_loadingSideEffects}}}>
         <NavigationContainer>
             <View style={styles.container}>
               {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
