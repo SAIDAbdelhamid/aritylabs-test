@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import {
   View,
   Text,
@@ -6,34 +6,31 @@ import {
   StyleSheet } from 'react-native'
 import COLORS from '../constants/theme'
 import Items from '../components/Items'
+import { Mycontext } from "../constants/context";
 
 //SCREEN
 export default function MainScreen(){
-    const DATA = [
-        {
-        title: "A",
-        data: ["PizzaPizzaPizzaPizzaPizzaPizzaPizzaPizzaPizzaPizzaPizza", "Burger", "Risotto"]
-        },
-        {
-        title: "B",
-        data: ["French Fries", "Onion Rings", "Fried Shrimps"]
-        },
-        {
-        title: "C",
-        data: ["Water", "Coke", "Beer"]
-        },
-        {
-        title: "D",
-        data: ["Cheese Cake", "Ice Cream"]
+    const { state, dispatch, app }= useContext(Mycontext)
+
+    useEffect(() => {
+        async function _callApi(){
+            dispatch(app._loadingSideEffects());
+            dispatch(await app._getSideEffects())
         }
-    ];
+        _callApi()
+      }, [])
+    
 
     return(
         <View style={styles.container}>
             <SectionList
-                sections={DATA}
+                sections={state.data}
+                onEndReachedThreshold={0.5}
+                onEndReached={() => {
+                    console.log('1')
+                  }}
                 keyExtractor={(item, index) => item + index}
-                renderItem={({ item }) => <Items label={item} onPress={()=>alert(item)}/>}
+                renderItem={({ item }) => <Items label={item.label} onPress={()=> console.log(item.label)}/>}
                 renderSectionHeader={({ section: { title } }) => (
                     <Text style={styles.sectionTitleContent}>{title}</Text>
                 )}
